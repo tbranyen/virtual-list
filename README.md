@@ -1,28 +1,27 @@
 ## Virtual DOM List
 
-This is a simple component that allows the developer to create very
-long lists (by list I mean a single column of rows) that perform extremely
-fast. It does so by loading just the part of the list showing up on the viewport, and by optimizing
-the amount of DOM operations and reflows. It also spends very little memory.
+This is a simple component that allows the developer to create very long lists
+(by list I mean a single column of rows) that perform extremely fast. It does
+so by loading just the part of the list showing up on the viewport, and by
+optimizing the amount of DOM operations and reflows. It also spends very little
+memory.
 
 The list could be done even faster by sacrificing the 'momentum' effect, but I
 decided to keep it since it is too big of a sacrifice for the sake of speed.
 
 ## Installation
 
-    npm install virtual-list
+```sh
+npm install virtual-list
+```
 
-Or if you prefer bower:
-
-    bower install virtual-list
-
-Of course it can also just be added to any JavaScript project since it consists of a
-single JavaScript file.
+Of course it can also just be added to any JavaScript project since it consists
+of a single JavaScript file.
 
 ## Usage
 
-Each of the following snippets of code creates a virtual list that holds 1 milion
-rows:
+Each of the following snippets of code creates a virtual list that holds 1
+milion rows:
 
 ```javascript
 // This will create a scrolling list of 300x300 with 10000 rows. It is necessary to specify
@@ -33,14 +32,18 @@ var list = new ScrollableList({
   h: 300,
   itemHeight: 31,
   totalRows: 10000,
+
   generatorFn: function(row) {
     var el = document.createElement("div");
+
     el.innerHTML = "ITEM " + row;
     el.style.borderBottom = "1px solid red";
     el.style.position = "absolute"
+
     return el;
   }
 });
+
 document.body.appendChild(list.container)
 
 // The code below will create an array of 10000 DOM elements beforehand and pass them to
