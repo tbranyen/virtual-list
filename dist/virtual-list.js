@@ -57,13 +57,21 @@ var VirtualList = function () {
 
     var render = function () {
       // Triggers reflow
-      var context = document.querySelector('nf-sticky-table').context || {};
-      var scrollTop = context.scrollTop || 0;
+      var context = { scrollTop: 0 };
+
+      if (config.beforeRender) {
+        config.beforeRender(context);
+      }
+
+      var scrollTop = context.scrollTop;
 
       if (scrollTop !== lastRepaintY) {
         if (!lastRepaintY || Math.abs(scrollTop - lastRepaintY) > maxBuffer) {
           var first = parseInt(scrollTop / itemHeight) - screenItemsLen;
           this._renderChunk(first < 0 ? 0 : first);
+          if (config.afterRender) {
+            config.afterRender();
+          }
           lastRepaintY = scrollTop;
         }
 
@@ -77,6 +85,12 @@ var VirtualList = function () {
   }
 
   _createClass(VirtualList, [{
+    key: 'destroy',
+    value: function destroy() {
+      clearInterval(this.rmNodeInterval);
+      cancelAnimationFrame(this._rAF);
+    }
+  }, {
     key: 'createRow',
     value: function createRow(i) {
       var item;
