@@ -24,9 +24,8 @@ var VirtualList = function () {
     var height = config && config.h && config.h + 'px' || '100%';
     var itemHeight = this.itemHeight = config.itemHeight;
 
-    this.items = config.items;
     this.generatorFn = config.generatorFn;
-    this.totalRows = config.totalRows || config.items && config.items.length;
+    this.totalRows = config.totalRows;
 
     this.container = VirtualList.createContainer(config.container, width, height);
 
@@ -43,18 +42,6 @@ var VirtualList = function () {
     var maxBuffer = screenItemsLen * itemHeight;
     var lastScrolled = 0;
 
-    // As soon as scrolling has stopped, this interval asynchronously removes
-    // all the nodes that are not used anymore.
-    this.rmNodeInterval = setInterval(function () {
-      if (Date.now() - lastScrolled > 100) {
-        var badNodes = document.querySelectorAll('[data-rm="1"]');
-
-        Array.prototype.forEach.call(badNodes, function (badNode) {
-          badNode.parentNode.removeChild(badNode);
-        });
-      }
-    }, 300);
-
     var render = function () {
       // Triggers reflow
       var context = { scrollTop: 0 };
@@ -68,6 +55,7 @@ var VirtualList = function () {
       if (scrollTop !== lastRepaintY) {
         if (!lastRepaintY || Math.abs(scrollTop - lastRepaintY) > maxBuffer) {
           var first = parseInt(scrollTop / itemHeight) - screenItemsLen;
+          console.log(first, this.cachedItemsLen);
           this._renderChunk(first < 0 ? 0 : first);
           if (config.afterRender) {
             config.afterRender();
@@ -97,15 +85,6 @@ var VirtualList = function () {
 
       if (this.generatorFn) {
         item = this.generatorFn(i);
-      } else if (this.items) {
-        if (typeof this.items[i] === 'string') {
-          var itemText = document.createTextNode(this.items[i]);
-          item = document.createElement('div');
-          item.style.height = this.itemHeight + 'px';
-          item.appendChild(itemText);
-        } else {
-          item = this.items[i];
-        }
       }
 
       item.classList.add('vrow');
@@ -149,7 +128,17 @@ var VirtualList = function () {
         this.container.childNodes[j].setAttribute('data-rm', '1');
       }
 
-      this.container.appendChild(fragment);
+      this.container.appendChild(fragment.cloneNode(true));
+
+      clearInterval(this.rmNodeInterval);
+
+      this.rmNodeInterval = setTimeout(function () {
+        var badNodes = document.querySelectorAll('[data-rm="1"]');
+
+        Array.prototype.forEach.call(badNodes, function (badNode) {
+          badNode.parentNode.removeChild(badNode);
+        });
+      }, 100);
     }
 
     /**
