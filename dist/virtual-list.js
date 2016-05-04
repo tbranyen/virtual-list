@@ -42,6 +42,18 @@ var VirtualList = function () {
     var maxBuffer = screenItemsLen * itemHeight;
     var lastScrolled = 0;
 
+    // As soon as scrolling has stopped, this interval asynchronously removes
+    // all the nodes that are not used anymore.
+    this.rmNodeInterval = setInterval(function () {
+      if (Date.now() - lastScrolled > 100) {
+        var badNodes = document.querySelectorAll('[data-rm="1"]');
+
+        Array.prototype.forEach.call(badNodes, function (badNode) {
+          badNode.parentNode.removeChild(badNode);
+        });
+      }
+    }, 300);
+
     var render = function () {
       // Triggers reflow
       var context = { scrollTop: 0 };
@@ -50,10 +62,7 @@ var VirtualList = function () {
         config.beforeRender(context);
 
         if (context.height) {
-          var _screenItemsLen = context.height / itemHeight;
-
-          // Cache 4 times the number of items that fit in the container
-          // viewport.
+          var _screenItemsLen = Math.ceil(context.height / itemHeight);
           this.cachedItemsLen = _screenItemsLen * 3;
         }
       }
@@ -63,7 +72,6 @@ var VirtualList = function () {
       if (scrollTop !== lastRepaintY) {
         if (!lastRepaintY || Math.abs(scrollTop - lastRepaintY) > maxBuffer) {
           var first = parseInt(scrollTop / itemHeight) - screenItemsLen;
-          console.log(first, this.cachedItemsLen);
           this._renderChunk(first < 0 ? 0 : first);
           if (config.afterRender) {
             config.afterRender();
@@ -89,11 +97,7 @@ var VirtualList = function () {
   }, {
     key: 'createRow',
     value: function createRow(i) {
-      var item;
-
-      if (this.generatorFn) {
-        item = this.generatorFn(i);
-      }
+      var item = this.generatorFn(i);
 
       item.classList.add('vrow');
       item.style.top = i * this.itemHeight + 'px';
@@ -130,23 +134,17 @@ var VirtualList = function () {
         fragment.appendChild(this.createRow(i));
       }
 
+      var cacheTracer = this.container.firstChild;
+      this.container.innerHTML = '';
+      this.container.appendChild(cacheTracer);
+
       // Hide and mark obsolete nodes for deletion.
       for (var j = 1, l = this.container.childNodes.length; j < l; j++) {
         this.container.childNodes[j].style.display = 'none';
         this.container.childNodes[j].setAttribute('data-rm', '1');
       }
 
-      this.container.appendChild(fragment.cloneNode(true));
-
-      clearInterval(this.rmNodeInterval);
-
-      this.rmNodeInterval = setTimeout(function () {
-        var badNodes = document.querySelectorAll('[data-rm="1"]');
-
-        Array.prototype.forEach.call(badNodes, function (badNode) {
-          badNode.parentNode.removeChild(badNode);
-        });
-      }, 100);
+      this.container.appendChild(fragment);
     }
 
     /**
