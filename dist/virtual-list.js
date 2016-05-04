@@ -48,6 +48,14 @@ var VirtualList = function () {
 
       if (config.beforeRender) {
         config.beforeRender(context);
+
+        if (context.height) {
+          var _screenItemsLen = context.height / itemHeight;
+
+          // Cache 4 times the number of items that fit in the container
+          // viewport.
+          this.cachedItemsLen = _screenItemsLen * 3;
+        }
       }
 
       var scrollTop = context.scrollTop;
