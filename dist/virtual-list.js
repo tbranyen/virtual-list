@@ -51,6 +51,7 @@ var VirtualList = function () {
     var config = this[_config];
     var context = { scrollTop: 0 };
 
+    // Create internal render loop.
     var render = function render() {
       var scrollTop = _this[_getScrollPosition]();
       var screenItemsLen = _this[_screenItemsLen];
@@ -64,7 +65,8 @@ var VirtualList = function () {
       } else if (!lastRepaint || Math.abs(scrollTop - lastRepaint) > maxBuffer) {
         _this[_renderChunk]();
         _this[_lastRepaint] = scrollTop;
-        if (config.afterRender) {
+
+        if (typeof config.afterRender === 'function') {
           config.afterRender();
         }
       }
