@@ -1,4 +1,4 @@
-## Virtual DOM List
+## Virtual List
 
 This is a simple component that allows the developer to create very long lists
 (by list I mean a single column of rows) that perform extremely fast. It does
