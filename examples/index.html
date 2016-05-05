@@ -50,22 +50,32 @@
   </style>
 </head>
 <body>
-<script type="text/javascript" src="../vlist.js"></script>
-<script>
-  var list = new VirtualList({
-    h: window.innerHeight,
-    itemHeight: 50,
-    totalRows: 100000,
 
-    generatorFn: function(row) {
+<script type="text/javascript" src="../dist/virtual-list.js"></script>
+<script>
+  var container = document.createElement('div');
+  var config = {
+    height: window.innerHeight,
+    itemHeight: 50,
+    total: 100000,
+
+    generate: function(row) {
       var el = document.createElement("div");
       el.innerHTML = "<p>ITEM " + row + "</p>";
       return el;
     }
-  });
+  };
 
-  list.container.classList.add("container");
-  document.body.appendChild(list.container)
+  var list = VirtualList.default.create(container, config);
+
+  window.onresize = e => {
+    config.height = window.innerHeight;
+    list.refresh(container, config);
+  };
+
+  container.classList.add("container");
+
+  document.body.appendChild(container)
 </script>
 </body>
 </html>

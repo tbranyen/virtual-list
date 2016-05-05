@@ -25,6 +25,8 @@ var _renderChunk = Symbol('renderChunk');
 var _screenItemsLen = Symbol('screenItemsLen');
 var _cachedItemsLen = Symbol('cachedItemsLen');
 var _lastRepaint = Symbol('lastRepaint');
+var _getRow = Symbol('getRow');
+var _getScrollPosition = Symbol('getScrollPosition');
 
 var VirtualList = function () {
   _createClass(VirtualList, null, [{
@@ -49,16 +51,8 @@ var VirtualList = function () {
     var config = this[_config];
     var context = { scrollTop: 0 };
 
-    var getScrollPosition = function getScrollPosition() {
-      if (typeof config.overrideScrollPosition === 'function') {
-        return config.overrideScrollPosition();
-      }
-
-      return element.scrollTop;
-    };
-
     var render = function render() {
-      var scrollTop = getScrollPosition();
+      var scrollTop = _this[_getScrollPosition]();
       var screenItemsLen = _this[_screenItemsLen];
       var maxBuffer = screenItemsLen * config.itemHeight;
       var lastRepaint = _this[_lastRepaint];
@@ -68,8 +62,7 @@ var VirtualList = function () {
       if (scrollTop === lastRepaint) {
         return;
       } else if (!lastRepaint || Math.abs(scrollTop - lastRepaint) > maxBuffer) {
-        var from = parseInt(scrollTop / config.itemHeight) - screenItemsLen;
-        _this[_renderChunk](from < 0 ? 0 : from);
+        _this[_renderChunk]();
         _this[_lastRepaint] = scrollTop;
         if (config.afterRender) {
           config.afterRender();
@@ -144,11 +137,11 @@ var VirtualList = function () {
       this[_scroller] = scroller;
 
       // Render after refreshing.
-      this[_renderChunk](0);
+      this[_renderChunk]();
     }
   }, {
-    key: 'getRow',
-    value: function getRow(i) {
+    key: _getRow,
+    value: function value(i) {
       var config = this[_config];
       var item = config.generate(i);
 
@@ -162,6 +155,17 @@ var VirtualList = function () {
 
       return item;
     }
+  }, {
+    key: _getScrollPosition,
+    value: function value() {
+      var config = this[_config];
+
+      if (typeof config.overrideScrollPosition === 'function') {
+        return config.overrideScrollPosition();
+      }
+
+      return this[_element].scrollTop;
+    }
 
     /**
      * Renders a particular, consecutive chunk of the total rows in the list. To
@@ -170,16 +174,20 @@ var VirtualList = function () {
      * stop the acceleration. We delete them once scrolling has finished.
      *
      * @param {Node} node Parent node where we want to append the children chunk.
-     * @param {Number} from Starting position, i.e. first children index.
      * @return {void}
      */
 
   }, {
     key: _renderChunk,
-    value: function value(from) {
+    value: function value() {
       var config = this[_config];
       var element = this[_element];
       var total = config.total;
+      var scrollTop = this[_getScrollPosition]();
+      var screenItemsLen = this[_screenItemsLen];
+      var itemHeight = config.itemHeight;
+      var estimatedFrom = Math.floor(scrollTop / itemHeight) - screenItemsLen;
+      var from = estimatedFrom < 0 ? 0 : estimatedFrom;
       var estimatedTo = from + this[_cachedItemsLen];
       var to = estimatedTo > total ? total : estimatedTo;
 
@@ -191,7 +199,7 @@ var VirtualList = function () {
       fragment.appendChild(this[_scroller]);
 
       for (var i = from; i < to; i++) {
-        fragment.appendChild(this.getRow(i));
+        fragment.appendChild(this[_getRow](i));
       }
 
       element.innerHTML = '';
