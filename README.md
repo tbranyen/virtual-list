@@ -5,6 +5,10 @@ and provide a virtual scrolling area that is highly performant and lightweight.
 With zero dependencies and well under 200 lines of code sans comments, it is
 easy to parse and use.
 
+## Demo
+
+![Demo](/example.gif?raw=true)
+
 ## Installation
 
 ```sh
@@ -77,10 +81,10 @@ const config = {
     return document.body.scrollTop;
   },
   
-  // Customize the scroller tag name.
-  scrollerTagName: 'div',
+  // Customize the scroller tag name, defaults to tr.
+  scrollerTagName: 'tr',
 
-  // Customize the virtual row class.
+  // Customize the virtual row class, defaults to vrow.
   rowClassName: 'vrow',
 
   // Wire up the data to the index. The index is then mapped to a Y position
@@ -110,7 +114,3 @@ window.onresize = () => {
   list.refresh(container, config);
 };
 ```
-
-## Demo
-
-![Demo](/example.gif?raw=true)
