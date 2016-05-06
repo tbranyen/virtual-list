@@ -197,9 +197,10 @@ var VirtualList = function () {
     value: function value() {
       var config = this[_config];
       var element = this[_element];
-      var total = config.total;
       var scrollTop = this[_getScrollPosition]();
       var screenItemsLen = this[_screenItemsLen];
+      var getRow = this[_getRow];
+      var total = config.total;
       var itemHeight = config.itemHeight;
       var estimatedFrom = Math.floor(scrollTop / itemHeight) - screenItemsLen;
       var from = estimatedFrom < 0 ? 0 : estimatedFrom;
@@ -214,7 +215,7 @@ var VirtualList = function () {
       fragment.appendChild(this[_scroller]);
 
       for (var i = from; i < to; i++) {
-        fragment.appendChild(this[_getRow](config.reverse ? config.total - 1 - i : i));
+        fragment.appendChild(getRow(config.reverse ? config.total - 1 - i : i));
       }
 
       element.innerHTML = '';
