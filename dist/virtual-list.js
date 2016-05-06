@@ -51,6 +51,12 @@ var VirtualList = function () {
     var config = this[_config];
     var context = { scrollTop: 0 };
 
+    if (config.reverse) {
+      requestAnimationFrame(function () {
+        element.scrollTop = (config.total - 1) * config.itemHeight;
+      });
+    }
+
     // Create internal render loop.
     var render = function render() {
       var scrollTop = _this[_getScrollPosition]();
@@ -146,13 +152,22 @@ var VirtualList = function () {
     value: function value(i) {
       var config = this[_config];
       var item = config.generate(i);
+      var itemHeight = config.itemHeight;
 
       if (!item || item.nodeType !== 1) {
         throw new Error('Generator did not return a DOM Node for index: ' + i);
       }
 
       item.classList.add('vrow');
-      item.style.top = i * config.itemHeight + 'px';
+
+      var offsetTop = i * itemHeight;
+
+      if (config.reverse) {
+        item.style.top = (config.total - 1) * itemHeight - offsetTop + 'px';
+      } else {
+        item.style.top = offsetTop + 'px';
+      }
+
       item.style.position = 'absolute';
 
       return item;
@@ -201,7 +216,7 @@ var VirtualList = function () {
       fragment.appendChild(this[_scroller]);
 
       for (var i = from; i < to; i++) {
-        fragment.appendChild(this[_getRow](i));
+        fragment.appendChild(this[_getRow](config.reverse ? config.total - 1 - i : i));
       }
 
       element.innerHTML = '';
