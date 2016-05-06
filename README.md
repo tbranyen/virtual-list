@@ -104,3 +104,7 @@ window.onresize = () => {
   list.refresh(container, config);
 };
 ```
+
+## Demo
+
+![Demo](/example.gif?raw=true)
