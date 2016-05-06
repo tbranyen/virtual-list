@@ -97,8 +97,9 @@ var VirtualList = function () {
 
       this[_element] = element;
 
-      var scroller = this[_scroller] || document.createElement('tr');
       var config = this[_config];
+
+      var scroller = this[_scroller] || document.createElement(config.scrollerTagName || 'tr');
 
       if (!config.generate) {
         throw new Error('Missing required `generate` function');
@@ -159,15 +160,11 @@ var VirtualList = function () {
         throw new Error('Generator did not return a DOM Node for index: ' + i);
       }
 
-      item.classList.add('vrow');
+      item.classList.add(config.rowClassName || 'vrow');
 
       var offsetTop = i * itemHeight;
 
-      if (config.reverse) {
-        item.style.top = (config.total - 1) * itemHeight - offsetTop + 'px';
-      } else {
-        item.style.top = offsetTop + 'px';
-      }
+      item.style.top = (config.reverse ? (config.total - 1) * itemHeight - offsetTop : offsetTop) + 'px';
 
       item.style.position = 'absolute';
 

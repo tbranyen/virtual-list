@@ -76,6 +76,12 @@ const config = {
   overrideScrollPosition() {
     return document.body.scrollTop;
   },
+  
+  // Customize the scroller tag name.
+  scrollerTagName: 'div',
+
+  // Customize the virtual row class.
+  rowClassName: 'vrow',
 
   // Wire up the data to the index. The index is then mapped to a Y position
   // in the container.
