@@ -134,8 +134,9 @@ var VirtualList = function () {
         element.appendChild(scroller);
       }
 
-      // FIXME This should be able to resolve strings.
-      var trueElementHeight = userProvidedConfig.height;
+      var height = userProvidedConfig.height;
+      var elementHeight = element.offsetHeight;
+      var resolvedHeight = typeof height === 'string' ? elementHeight : height;
 
       this[_screenItemsLen] = Math.ceil(trueElementHeight / config.itemHeight);
       // Cache 4 times the number of items that fit in the container viewport.
