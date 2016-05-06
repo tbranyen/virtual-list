@@ -74,18 +74,18 @@ const config = {
 
   // Reverse the list to start from the bottom instead of the top.
   reverse: true,
-
-  // By default Virtual List will determine scroll offset from the container
-  // element. You can override this lookup by using this hook.
-  overrideScrollPosition() {
-    return document.body.scrollTop;
-  },
   
   // Customize the scroller tag name, defaults to tr.
   scrollerTagName: 'tr',
 
   // Customize the virtual row class, defaults to vrow.
   rowClassName: 'vrow',
+
+  // By default Virtual List will determine scroll offset from the container
+  // element. You can override this lookup by using this hook.
+  overrideScrollPosition() {
+    return document.body.scrollTop;
+  },
 
   // Wire up the data to the index. The index is then mapped to a Y position
   // in the container.
