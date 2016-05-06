@@ -138,7 +138,7 @@ var VirtualList = function () {
       var elementHeight = element.offsetHeight;
       var resolvedHeight = typeof height === 'string' ? elementHeight : height;
 
-      this[_screenItemsLen] = Math.ceil(trueElementHeight / config.itemHeight);
+      this[_screenItemsLen] = Math.ceil(resolvedHeight / config.itemHeight);
       // Cache 4 times the number of items that fit in the container viewport.
       this[_cachedItemsLen] = this[_screenItemsLen] * 3;
 
