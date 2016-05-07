@@ -211,11 +211,17 @@ var VirtualList = function () {
       // to the parent node
       var fragment = document.createDocumentFragment();
 
+      this[_scroller] = this[_scroller].cloneNode();
+
       // Keep the scroller in the list of children.
       fragment.appendChild(this[_scroller]);
 
       for (var i = from; i < to; i++) {
         fragment.appendChild(getRow(config.reverse ? config.total - 1 - i : i));
+      }
+
+      if (config.applyPatch) {
+        return config.applyPatch(element, fragment);
       }
 
       element.innerHTML = '';

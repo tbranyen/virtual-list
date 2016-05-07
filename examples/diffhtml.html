@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>Virtual List Demo</title>
+  <title>Virtual List Demo w/ diffHTML</title>
 
   <style>
     body, html {
@@ -16,6 +16,7 @@
       min-width: 100%;
       text-align: center;
     }
+
     body {
       overflow: hidden;
     }
@@ -51,7 +52,9 @@
 </head>
 <body>
 
+<script type="text/javascript" src="../node_modules/diffhtml/dist/diffhtml.js"></script>
 <script type="text/javascript" src="../dist/virtual-list.js"></script>
+
 <script>
   var container = document.createElement('div');
   var config = {
@@ -59,12 +62,17 @@
     itemHeight: 50,
     total: 100000,
     // Set to true to put into 'chat mode'.
-    reverse: false,
+    reverse: true,
+    scrollerTagName: 'div',
 
-    generate: function(row) {
+    generate(row) {
       var el = document.createElement("div");
       el.innerHTML = "<p>ITEM " + row + "</p>";
       return el;
+    },
+
+    applyPatch(element, fragment) {
+      diff.element(element, fragment);
     }
   };
 
