@@ -103,6 +103,15 @@ const config = {
   afterRender() {
     console.log('Rendered some items');
   },
+
+  // If you want to do some custom rendering with the container element and
+  // the fragment, you can specify this method. The contents of this function
+  // are the defaults. Look at examples/diffhtml.html for an example of using
+  // this method with a Virtual DOM.
+  applyPatch(element, fragment) {
+    element.innerHTML = '';
+    element.appendChild(fragment);
+  },
 };
 
 // Pass the container element and configuration to the VirtualList constructor.

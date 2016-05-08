@@ -89,7 +89,7 @@ var VirtualList = function () {
   }, {
     key: 'refresh',
     value: function refresh(element, userProvidedConfig) {
-      Object.assign(this[_config], userProvidedConfig, defaultConfig);
+      Object.assign(this[_config], defaultConfig, userProvidedConfig);
 
       if (!element || element.nodeType !== 1) {
         throw new Error('Virtual List requires a valid DOM Node container');
@@ -128,7 +128,16 @@ var VirtualList = function () {
       // the user supplied configuration.
       element.setAttribute('style', '\n      width: ' + config.width + ';\n      height: ' + config.height + ';\n      overflow: auto;\n      position: relative;\n      padding: 0;\n    ');
 
-      scroller.setAttribute('style', '\n      opacity: 0;\n      position: absolute;\n      top: 0;\n      left: 0;\n      width: 1px;\n      height: ' + config.itemHeight * config.total + 'px;\n    ');
+      var scrollerHeight = config.itemHeight * config.total;
+      // Testing with Chrome only...
+      var maxPossibleHeight = 33554428;
+
+      if (scrollerHeight > maxPossibleHeight) {
+        var scrollerCount = Math.ceil(scrollerHeight / maxPossibleHeight);
+        console.log('There needs to be at least %s scrollers', scrollerCount);
+      }
+
+      scroller.setAttribute('style', '\n      opacity: 0;\n      position: relative;\n      width: 1px;\n      height: ' + scrollerHeight + 'px;\n    ');
 
       // Only append the scroller element once.
       if (!this[_scroller]) {
@@ -153,6 +162,8 @@ var VirtualList = function () {
     key: _getRow,
     value: function value(i) {
       var config = this[_config];
+      var reverse = config.reverse;
+      var total = config.total;
       var item = config.generate(i);
       var itemHeight = config.itemHeight;
 
@@ -163,10 +174,9 @@ var VirtualList = function () {
       item.classList.add(config.rowClassName || 'vrow');
 
       var offsetTop = i * itemHeight;
+      var top = reverse ? (total - 1) * itemHeight - offsetTop : offsetTop;
 
-      item.style.top = (config.reverse ? (config.total - 1) * itemHeight - offsetTop : offsetTop) + 'px';
-
-      item.style.position = 'absolute';
+      item.setAttribute('style', 'position: absolute; top: ' + top + 'px');
 
       return item;
     }
@@ -181,17 +191,6 @@ var VirtualList = function () {
 
       return this[_element].scrollTop;
     }
-
-    /**
-     * Renders a particular, consecutive chunk of the total rows in the list. To
-     * keep acceleration while scrolling, we mark the nodes that are candidate
-     * for deletion instead of deleting them right away, which would suddenly
-     * stop the acceleration. We delete them once scrolling has finished.
-     *
-     * @param {Node} node Parent node where we want to append the children chunk.
-     * @return {void}
-     */
-
   }, {
     key: _renderChunk,
     value: function value() {
@@ -202,10 +201,10 @@ var VirtualList = function () {
       var getRow = this[_getRow].bind(this);
       var total = config.total;
       var itemHeight = config.itemHeight;
-      var estimatedFrom = Math.floor(scrollTop / itemHeight) - screenItemsLen;
-      var from = estimatedFrom < 0 ? 0 : estimatedFrom;
-      var estimatedTo = from + this[_cachedItemsLen];
-      var to = estimatedTo > total ? total : estimatedTo;
+      var estFrom = Math.floor(scrollTop / itemHeight) - screenItemsLen;
+      var from = estFrom > total ? total : estFrom < 0 ? 0 : estFrom;
+      var estTo = from + this[_cachedItemsLen];
+      var to = estTo > total ? total : estTo < 0 ? 0 : estTo;
 
       // Append all the new rows in a document fragment that we will later append
       // to the parent node
