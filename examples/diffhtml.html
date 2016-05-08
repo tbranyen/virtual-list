@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Virtual List Demo w/ diffHTML</title>
+
+  <style>
+    body, html {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      min-height: 100%;
+      min-width: 100%;
+      text-align: center;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    @media
+    only screen and (-webkit-min-device-pixel-ratio : 1.5),
+    only screen and (min-device-pixel-ratio : 1.5) {
+      .container {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+      }
+    }
+
+    .vrow {
+      width: 100%;
+      height: 60px;
+      max-height: 30px;
+      color: #000;
+      margin: 0;
+      padding-top: 30px;
+      padding-bottom: 30px;
+      box-sizing: border-box;
+    }
+
+    .vrow p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+      color: #5b5b5b;
+    }
+  </style>
+</head>
+<body>
+
+<script type="text/javascript" src="../node_modules/diffhtml/dist/diffhtml.js"></script>
+<script type="text/javascript" src="../dist/virtual-list.js"></script>
+
+<script>
+  diff.enableProllyfill();
+
+  var container = document.createElement('div');
+  var config = {
+    height: window.innerHeight,
+    itemHeight: 50,
+    total: 671088,
+
+    // Set to true to put into 'chat mode'.
+    reverse: true,
+    scrollerTagName: 'div',
+
+    generate(row) {
+      var el = document.createElement("div");
+      el.innerHTML = "<p>ITEM " + row + "</p>";
+      return el;
+    },
+
+    applyPatch(element, fragment) {
+      element.diffElement(fragment);
+    }
+  };
+
+  var list = VirtualList.default.create(container, config);
+
+  window.onresize = function(e) {
+    config.height = window.innerHeight;
+    list.refresh(container, config);
+  };
+
+  container.classList.add("container");
+
+  document.body.appendChild(container)
+</script>
+</body>
+</html>

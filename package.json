@@ -2,8 +2,15 @@
   "name": "virtual-list",
   "version": "1.0.1",
   "description": "Allows the developer to create massively long lists that perform extremely fast by loading just the part of the list showing up on the viewport, and by optimizing the amount of DOM operations and reflows.",
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.6.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "derequire": "^2.0.3",
+    "watchify": "^3.7.0",
+    "diffhtml": "tbranyen/diffhtml#172c93a8d536d89a99032b47e462282418a03985"
+  },
   "keywords": [
     "list",
     "buffer",
@@ -14,14 +21,21 @@
     "performance",
     "dom"
   ],
-  "main": "./vlist.js.js",
+  "main": "dist/virtual-list.js",
   "bugs": {
-    "url": "https://github.com/sergi/virtual-list/issues"
+    "url": "https://github.com/tbranyen/virtual-list/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/sergi/virtual-list.git"
+    "url": "git://github.com/tbranyen/virtual-list.git"
+  },
+  "scripts": {
+    "build": "browserify -t [ babelify --presets [ es2015 ] ] -s VirtualList lib/index.js | derequire > dist/virtual-list.js",
+    "watch": "watchify -t [ babelify --presets [ es2015 ] ] -s VirtualList lib/index.js -o 'derequire > dist/virtual-list.js' -v"
   },
   "author": "Sergi Mansilla <sergi.mansilla@gmail.com>",
+  "contributors": [
+    "Tim Branyen (@tbranyen)"
+  ],
   "license": "MIT"
 }
