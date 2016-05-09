@@ -34,6 +34,23 @@ var VirtualList = function () {
     value: function create(element, userProvidedConfig) {
       return new VirtualList(element, userProvidedConfig);
     }
+  }, {
+    key: 'maxElementHeight',
+    get: function get() {
+      var wrapper = document.createElement('div');
+      var fixture = document.createElement('div');
+
+      wrapper.style = 'position: absolute; height: 1px; opacity: 0;';
+      fixture.style = 'height: 1000000000px;';
+
+      wrapper.appendChild(fixture);
+
+      document.body.appendChild(wrapper);
+      var retVal = fixture.offsetHeight;
+      document.body.removeChild(wrapper);
+
+      return retVal;
+    }
   }]);
 
   function VirtualList(element) {
@@ -129,15 +146,13 @@ var VirtualList = function () {
       element.setAttribute('style', '\n      width: ' + config.width + ';\n      height: ' + config.height + ';\n      overflow: auto;\n      position: relative;\n      padding: 0;\n    ');
 
       var scrollerHeight = config.itemHeight * config.total;
-      // Testing with Chrome only...
-      var maxPossibleHeight = 33554428;
+      var maxElementHeight = VirtualList.maxElementHeight;
 
-      if (scrollerHeight > maxPossibleHeight) {
-        var scrollerCount = Math.ceil(scrollerHeight / maxPossibleHeight);
-        console.log('There needs to be at least %s scrollers', scrollerCount);
+      if (scrollerHeight > maxElementHeight) {
+        console.warn(['VirtualList: The maximum element height ${maxElementHeight}px has', 'been exceeded, please reduce your item height.'].join());
       }
 
-      scroller.setAttribute('style', '\n      opacity: 0;\n      position: relative;\n      width: 1px;\n      height: ' + scrollerHeight + 'px;\n    ');
+      scroller.setAttribute('style', '\n      opacity: 0;\n      position: absolute;\n      width: 1px;\n      height: ' + scrollerHeight + 'px;\n    ');
 
       // Only append the scroller element once.
       if (!this[_scroller]) {
